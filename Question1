@@ -1,0 +1,29 @@
+
+import numpy as np 
+import pandas as pd
+ import matplotlib.pyplot as plt
+ from sklearn.preprocessing import StandardScaler 
+import seaborn as sns 
+iris_df = pd.read_csv('Iris.csv')
+ features = iris_df.iloc[:, :-1].values
+ labels = iris_df['Species'] 
+sns.pairplot(iris_df, hue="Species", diag_kind="kde")
+ plt.show()
+ scaler = StandardScaler()
+ standardized_features = scaler.fit_transform(features)
+ covariance_matrix = np.cov(standardized_features.T) 
+eigenvalues, eigenvectors = np.linalg.eig(covariance_matrix)
+ sorted_indices = np.argsort(eigenvalues)[::-1] 
+sorted_eigenvectors = eigenvectors[:, sorted_indices] 
+sorted_eigenvalues = eigenvalues[sorted_indices]
+ principal_component_1 = sorted_eigenvectors[:, 0]
+ principal_component_2 = sorted_eigenvectors[:, 1]
+ projected_data = np.dot(standardized_features,
+ np.c_[principal_component_1, principal_component_2])
+ plt.figure(figsize=(8, 6))
+ scatter = plt.scatter(projected_data[:, 0], projected_data[:, 1], c=pd.Categorical(labels).codes, cmap='viridis', s=50) 
+plt.xlabel('Principal Component 1')
+ plt.ylabel('Principal Component 2')
+ plt.title('PCA on Iris Dataset')
+ plt.colorbar(scatter, label='Species') 
+plt.show()
