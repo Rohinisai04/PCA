@@ -1,0 +1,42 @@
+import pandas as pd
+ import numpy as np
+ import matplotlib.pyplot as plt
+ from sklearn.model_selection import train_test_split 
+from sklearn.preprocessing import StandardScaler
+ from sklearn.decomposition import PCA
+ from sklearn.linear_model import LogisticRegression
+ from sklearn.metrics import accuracy_score, precision_score, recall_score
+ data = pd.read_csv('wine.csv') 
+features = data.drop('Target', axis=1)
+ labels = data['Target'] 
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.3, random_state=42) 
+scaler = StandardScaler()
+ X_train_scaled = scaler.fit_transform(X_train)
+ X_test_scaled = scaler.transform(X_test)
+ baseline_model = LogisticRegression(random_state=42) baseline_model.fit(X_train_scaled, y_train)
+ y_pred_baseline = baseline_model.predict(X_test_scaled) baseline_accuracy = accuracy_score(y_test, y_pred_baseline) baseline_precision = precision_score(y_test, y_pred_baseline, average='weighted')
+ baseline_recall = recall_score(y_test, y_pred_baseline, average='weighted')
+ print("Baseline Model Performance (No PCA):")
+ print(f"Accuracy: {baseline_accuracy:.4f}")
+ print(f"Precision: {baseline_precision:.4f}")
+ print(f"Recall: {baseline_recall:.4f}") 
+n_components_options = [2, 5, 10]
+ pca_accuracy_list = [] 
+for n_components in n_components_options:
+     pca = PCA(n_components=n_components)
+     X_train_pca = pca.fit_transform(X_train_scaled)
+     X_test_pca = pca.transform(X_test_scaled)
+     pca_model = LogisticRegression(random_state=42)      
+     pca_model.fit(X_train_pca, y_train)
+     y_pred_pca = pca_model.predict(X_test_pca)
+     pca_accuracy =     accuracy_score(y_test, y_pred_pca)       
+     pca_accuracy_list.append(pca_accuracy) 
+    print(f"\nModel Performance with {n_components} PCA     
+    Components:") 
+    print(f"Accuracy: {pca_accuracy:.4f}")
+ plt.figure(figsize=(8, 5)) 
+plt.plot([0] + n_components_options, [baseline_accuracy] + pca_accuracy_list, marker='o') 
+plt.title('Model Accuracy vs. Number of PCA Components') plt.xlabel('Number of PCA Components')
+ plt.ylabel('Accuracy') 
+plt.grid(True)
+ plt.show()
