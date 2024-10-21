@@ -1,0 +1,29 @@
+import numpy as np
+ import matplotlib.pyplot as plt 
+from sklearn.decomposition import PCA
+ from skimage import io, color 
+image = io.imread('grayscale_image.jpeg')
+ if len(image.shape) == 3: 
+     image = color.rgb2gray(image) 
+original_shape = image.shape 
+X = image.reshape(original_shape[0], -1) 
+
+def reconstruct_image(X, num_components, original_shape): 
+pca = PCA(n_components=num_components) 
+X_pca = pca.fit_transform(X) 
+X_reconstructed = pca.inverse_transform(X_pca)
+ return X_reconstructed.reshape(original_shape)
+ components_list = [5, 20, 50, 100] 
+plt.figure(figsize=(10, 8))
+ plt.subplot(2, 3, 1)
+ plt.imshow(image, cmap='gray') 
+plt.title('Original Image')
+ plt.axis('off') 
+for i, num_components in enumerate(components_list, 2):
+      reconstructed_img = reconstruct_image(X, num_components, original_shape) 
+     plt.subplot(2, 3, i) 
+     plt.imshow(reconstructed_img, cmap='gray')         
+     plt.title(f'{num_components} components')
+     plt.axis('off') 
+         plt.tight_layout()
+         plt.show()
